@@ -12,9 +12,10 @@ X = np.array([
 	[1,0,1,0,0],
 	[0,0,0,0,1],
 	[0,1,0,0,0],
-	[1,0,0,0,0]])
+	[1,0,0,0,0],
+	[0,1,1,0,0]])
 
-Y = np.array([[1],[0],[0],[1],[1],[1]])
+Y = np.array([[1],[0],[0],[1],[1],[1],[0]])
 
 np.random.seed(1)
 
@@ -28,7 +29,10 @@ weights_1 = 2*np.random.random((6,6)) - 1
 weights_2 = 2*np.random.random((6,6)) - 1
 weights_3 = 2*np.random.random((6,1)) - 1
 
-for iter in range(100000):
+prevFail = 0
+prevSuccess = 0
+
+for iter in range(10000000000):
 
 	input_layer = X #l0
 	hidden_layer = sig(np.dot(input_layer, weights_0)) #l1
@@ -50,14 +54,25 @@ for iter in range(100000):
 	weights_1 += hidden_layer.T.dot(l2_delta)
 	weights_0 += input_layer.T.dot(l1_delta)
 
+	if (iter % 10000 == 0):
+		failed = 0
+		success = 0
 
-poss = [[0,0,0,0,0],[1,0,0,0,0],[1,1,0,0,0],[1,1,1,0,0],[1,1,1,1,0],[1,1,1,1,1]]
-for p in poss:
-	for i in itertools.permutations(p):
-		input_layer = i
-		hidden_layer = sig(np.dot(input_layer, weights_0)) #l1
-		hidden_layer_2 = sig(np.dot(hidden_layer, weights_1)) #l2
-		hidden_layer_3 = sig(np.dot(hidden_layer_2, weights_2)) #l2
-		output_layer = sig(np.dot(hidden_layer_3, weights_3)) #l3
-		if ((str(sum(i)) != str(output_layer.round())[2]) and str(output_layer.round())[2] == "1"):
-			print(str(i) + " = " + str(output_layer.round())[2] + " "  +  (str(sum(i))))
+		poss = [[0,0,0,0,0],[1,0,0,0,0],[1,1,0,0,0],[1,1,1,0,0],[1,1,1,1,0],[1,1,1,1,1]]
+		for p in poss:
+			for i in itertools.permutations(p):
+				input_layer = i
+				hidden_layer = sig(np.dot(input_layer, weights_0)) #l1
+				hidden_layer_2 = sig(np.dot(hidden_layer, weights_1)) #l2
+				hidden_layer_3 = sig(np.dot(hidden_layer_2, weights_2)) #l2
+				output_layer = sig(np.dot(hidden_layer_3, weights_3)) #l3
+				if ((str(sum(i)) != str(output_layer.round())[2]) and str(output_layer.round())[2] == "1"):
+					failed += 1
+				else :
+					success += 1
+
+		if (prevSuccess != success):
+			print("Faield: " + str(failed))
+			print("Successful: " + str(success))
+		prevFail = failed
+		prevSuccess = success
